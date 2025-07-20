@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -13,17 +13,16 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  @@index([userId])
 }
 
 model Session {
@@ -32,8 +31,6 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 model User {
@@ -62,8 +59,6 @@ model Unit {
   name     String
   course   Course    @relation(fields: [courseId], references: [id])
   chapters Chapter[]
-
-  @@index([courseId])
 }
 
 model Chapter {
@@ -73,23 +68,19 @@ model Chapter {
   name               String
   youtubeSearchQuery String
   videoId            String?
-  summary            String?    @db.VarChar(3000)
+  summary            String?
   unit               Unit       @relation(fields: [unitId], references: [id])
   questions          Question[]
-
-  @@index([unitId])
 }
 
 model Question {
   id        String @id @default(cuid())
   chapterId String
 
-  question String  @db.VarChar(3000)
-  answer   String  @db.VarChar(3000)
-  options  String  @db.VarChar(3000)
+  question String
+  answer   String
+  options  String
   chapter  Chapter @relation(fields: [chapterId], references: [id])
-
-  @@index([chapterId])
 }
 
 model UserSubscription {
