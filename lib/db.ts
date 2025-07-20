@@ -7,11 +7,30 @@ declare global {
 }
 
 export let prisma: PrismaClient;
+
 if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient();
+  prisma = new PrismaClient({
+    log: ["error"],
+    errorFormat: "pretty",
+  });
 } else {
   if (!global.cachedPrisma) {
-    global.cachedPrisma = new PrismaClient();
+    global.cachedPrisma = new PrismaClient({
+      log: ["query", "error", "warn"],
+      errorFormat: "pretty",
+    });
   }
   prisma = global.cachedPrisma;
+}
+
+// Test database connection
+export async function testDatabaseConnection() {
+  try {
+    await prisma.$connect();
+    console.log("✅ Database connected successfully");
+    return true;
+  } catch (error) {
+    console.error("❌ Database connection failed:", error);
+    return false;
+  }
 }

@@ -25,11 +25,10 @@ export async function strict_output(
   let error_msg: string = "";
 
   for (let i = 0; i < num_tries; i++) {
-    let output_format_prompt: string = `\nYou are to output ${
-      list_output && "an array of objects in"
-    } the following in json format: ${JSON.stringify(
-      output_format
-    )}. \nDo not put quotation marks or escape character \\ in the output fields.`;
+    let output_format_prompt: string = `\nYou are to output ${list_output && "an array of objects in"
+      } the following in json format: ${JSON.stringify(
+        output_format
+      )}. \nDo not put quotation marks or escape character \\ in the output fields.`;
 
     if (list_output) {
       output_format_prompt += `\nIf output field is a list, classify output into the best element of the list.`;
@@ -59,9 +58,21 @@ export async function strict_output(
     });
 
     let res: string =
-      response.choices?.[0]?.message?.content?.replace(/'/g, '"') ?? "";
+      response.choices?.[0]?.message?.content ?? "";
 
-    res = res.replace(/(\w)"(\w)/g, "$1'$2");
+    // Clean up the response to ensure valid JSON
+    res = res.trim();
+
+    // Remove any markdown code blocks
+    res = res.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+
+    // Fix common JSON issues
+    res = res.replace(/'/g, '"'); // Replace single quotes with double quotes
+    res = res.replace(/(\w)"(\w)/g, "$1'$2"); // Fix contractions
+    res = res.replace(/([{,]\s*)(\w+):/g, '$1"$2":'); // Add quotes to unquoted keys
+    res = res.replace(/:\s*([^",\[\]{}\s]+)([,\]}])/g, ': "$1"$2'); // Quote unquoted string values
+    res = res.replace(/:\s*"(\d+)"([,\]}])/g, ': $1$2'); // Unquote numbers
+    res = res.replace(/:\s*"(true|false|null)"([,\]}])/g, ': $1$2'); // Unquote booleans and null
 
     if (verbose) {
       console.log(
