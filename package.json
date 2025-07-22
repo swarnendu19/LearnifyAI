@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && prisma db push && next build",
+    "db:migrate": "prisma migrate deploy",
     "db:seed": "npx tsx scripts/seed.ts",
     "db:reset": "npx prisma migrate reset --force && npm run db:seed",
     "db:studio": "npx prisma studio"
@@ -55,6 +58,7 @@
     "tailwindcss": "^4.1.11",
     "eslint": "^9.31.0",
     "eslint-config-next": "^15.3.5",
-    "@eslint/eslintrc": "^3"
+    "@eslint/eslintrc": "^3",
+    "prisma": "^6.11.1"
   }
 }

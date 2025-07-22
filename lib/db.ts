@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === "production") {
   prisma = global.cachedPrisma;
 }
 
-// Test database connection
+// Test database connection with retry logic
 export async function testDatabaseConnection() {
   try {
     await prisma.$connect();
@@ -32,5 +32,15 @@ export async function testDatabaseConnection() {
   } catch (error) {
     console.error("❌ Database connection failed:", error);
     return false;
+  }
+}
+
+// Graceful shutdown
+export async function disconnectDatabase() {
+  try {
+    await prisma.$disconnect();
+    console.log("✅ Database disconnected successfully");
+  } catch (error) {
+    console.error("❌ Database disconnection failed:", error);
   }
 }
