@@ -16,12 +16,12 @@ export default function Home() {
                 AI-Powered Learning Platform
               </div>
               <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent leading-tight">
-                Transform YouTube Videos
+                Learn Anything
                 <br />
-                Into Structured Courses
+                With the Power of AI
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Create comprehensive learning experiences from any YouTube content with our AI-powered course generator. Learn smarter, not harder.
+                Transform YouTube videos into structured learning experiences with our AI-powered course generator. Create, share, and master any topic with intelligent course creation.
               </p>
             </div>
 
