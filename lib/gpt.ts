@@ -68,7 +68,6 @@ export async function strict_output(
 
     // Fix common JSON issues
     res = res.replace(/'/g, '"'); // Replace single quotes with double quotes
-    res = res.replace(/(\w)"(\w)/g, "$1'$2"); // Fix contractions
     res = res.replace(/([{,]\s*)(\w+):/g, '$1"$2":'); // Add quotes to unquoted keys
     res = res.replace(/:\s*([^",\[\]{}\s]+)([,\]}])/g, ': "$1"$2'); // Quote unquoted string values
     res = res.replace(/:\s*"(\d+)"([,\]}])/g, ': $1$2'); // Unquote numbers
