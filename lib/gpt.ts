@@ -63,15 +63,31 @@ export async function strict_output(
     // Clean up the response to ensure valid JSON
     res = res.trim();
 
+    // Attempt to extract JSON from the response
+    let jsonString = res;
+    const objectStart = res.indexOf("{");
+    const objectEnd = res.lastIndexOf("}");
+    const arrayStart = res.indexOf("[");
+    const arrayEnd = res.lastIndexOf("]");
+
+    if (arrayStart !== -1 && arrayEnd !== -1) {
+      // Found an array, assume it's the primary JSON structure
+      jsonString = res.substring(arrayStart, arrayEnd + 1);
+    } else if (objectStart !== -1 && objectEnd !== -1) {
+      // Found an object
+      jsonString = res.substring(objectStart, objectEnd + 1);
+    }
+
     // Remove any markdown code blocks
-    res = res.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    jsonString = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '');
 
     // Fix common JSON issues
-    res = res.replace(/'/g, '"'); // Replace single quotes with double quotes
-    res = res.replace(/([{,]\s*)(\w+):/g, '$1"$2":'); // Add quotes to unquoted keys
-    res = res.replace(/:\s*([^",\[\]{}\s]+)([,\]}])/g, ': "$1"$2'); // Quote unquoted string values
-    res = res.replace(/:\s*"(\d+)"([,\]}])/g, ': $1$2'); // Unquote numbers
-    res = res.replace(/:\s*"(true|false|null)"([,\]}])/g, ': $1$2'); // Unquote booleans and null
+    jsonString = jsonString.replace(/'/g, '"'); // Replace single quotes with double quotes
+    jsonString = jsonString.replace(/([{,]\s*)(\w+):/g, '$1"$2":'); // Add quotes to unquoted keys
+    jsonString = jsonString.replace(/:\s*([^",\[\]{}\s]+)([,\]}])/g, ': "$1"$2'); // Quote unquoted string values
+    jsonString = jsonString.replace(/:\s*"(\d+)"([,\]}])/g, ': $1$2'); // Unquote numbers
+    jsonString = jsonString.replace(/:\s*"(true|false|null)"([,\]}])/g, ': $1$2'); // Unquote booleans and null
+
 
     if (verbose) {
       console.log(
@@ -80,10 +96,11 @@ export async function strict_output(
       );
       console.log("\nUser prompt:", user_prompt);
       console.log("\nGPT response:", res);
+      console.log("\nCleaned JSON string:", jsonString);
     }
 
     try {
-      let output: any = JSON.parse(res);
+      let output: any = JSON.parse(jsonString);
 
       if (list_input && !Array.isArray(output)) {
         throw new Error("Output format not in an array of JSON");
